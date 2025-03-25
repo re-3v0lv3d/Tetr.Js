@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tetrjs</title>
+    <title>Tetris</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
 </head>
@@ -21,7 +21,6 @@
     </div>
 
     <script>
-        // Constantes
         const COLS = 10;
         const ROWS = 20;
         const BLOCK_SIZE = 30;
@@ -36,7 +35,6 @@
             { forma: [[1, 0], [0, 1], [1, 1], [2, 1]], color: 'purple' }
         ];
 
-        // Tablero y Canvas
         const canvas = document.getElementById('board');
         const ctx = canvas.getContext('2d');
 
@@ -44,6 +42,28 @@
         canvas.height = ROWS * BLOCK_SIZE;
 
         ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+
+        const musica = new Audio('tetrjs.mp3');
+        musica.loop = true;
+        musica.volume = 0.4;
+
+        const linea = new Audio('line.wav');
+        linea.loop = false;
+        linea.volume = 1.0;
+
+        let piezaActual;
+        let tablero;
+        let lineas = 0;
+        let nivel = 0;
+        let puntaje = 0;
+        let juegoActivo = false;
+        let intervalo;
+
+        function crearPiezaAleatoria() {
+            const indicePieza = Math.floor(Math.random() * piezas.length);
+            const pieza = piezas[indicePieza];
+            return { forma: pieza.forma, color: pieza.color, x: 3, y: 0 };
+        }
 
         function crearTablero() {
             return Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
@@ -61,6 +81,18 @@
                     ctx.fillRect(x, y, 1, 1);
                 }
             }));
+        }
+
+        // Intento de dibujar las scanlines
+        function dibujarScanlines() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            for (let y = 0; y < ROWS; y += 1) {
+                ctx.fillRect(0, y, COLS, 0.1);
+            }
+
+            for (let x = 0; x < COLS; x += 1) {
+                ctx.fillRect(x, 0, 0.1, ROWS);
+    }
         }
 
         function colisionAbajo(pieza, tablero) {
@@ -104,29 +136,6 @@
             return true;
         }
 
-        // Lógica principal
-        const musica = new Audio('tetrjs.mp3');
-        musica.loop = true;
-        musica.volume = 0.4;
-
-        const linea = new Audio('line.wav');
-        linea.loop = false;
-        linea.volume = 1.0;
-
-        let piezaActual = crearPiezaAleatoria();
-        let tablero = crearTablero();
-        let lineas = 0;
-        let nivel = 0;
-        let puntaje = 0;
-        let juegoActivo = false;
-        let intervalo;
-
-        function crearPiezaAleatoria() {
-            const indicePieza = Math.floor(Math.random() * piezas.length);
-            const pieza = piezas[indicePieza];
-            return { forma: pieza.forma, color: pieza.color, x: 3, y: 0 };
-        }
-
         function moverPiezaAbajo() {
             if (!juegoActivo) return;
             if (colisionAbajo(piezaActual, tablero)) {
@@ -140,6 +149,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             dibujarTablero(tablero);
             dibujarPieza(piezaActual);
+            dibujarScanlines(); // Añadimos las scanlines aquí
             actualizarHUD();
         }
 
@@ -150,6 +160,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             dibujarTablero(tablero);
             dibujarPieza(piezaActual);
+            dibujarScanlines(); // Scanlines después de mover
+            actualizarHUD();
         }
 
         function moverDerecha() {
@@ -159,6 +171,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             dibujarTablero(tablero);
             dibujarPieza(piezaActual);
+            dibujarScanlines(); // Scanlines después de mover
+            actualizarHUD();
         }
 
         function rotarPieza() {
@@ -169,6 +183,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             dibujarTablero(tablero);
             dibujarPieza(piezaActual);
+            dibujarScanlines(); // Scanlines después de rotar
+            actualizarHUD();
         }
 
         function eliminarLineasCompletas() {
@@ -229,6 +245,10 @@
             intervalo = setInterval(moverPiezaAbajo, velocidadInicial);
             musica.play();
             actualizarHUD();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            dibujarTablero(tablero);
+            dibujarPieza(piezaActual);
+            dibujarScanlines(); // Scanlines al empezar
         }
 
         document.addEventListener('keydown', manejarTecla);
@@ -241,6 +261,10 @@
                 case 40: moverPiezaAbajo(); break;
             }
         }
+
+        // Inicializar variables al cargar la página
+        piezaActual = crearPiezaAleatoria();
+        tablero = crearTablero();
     </script>
 </body>
 </html>
