@@ -1,28 +1,4 @@
 // main.js
-
-const COLS = 10;
-const ROWS = 20;
-const BLOCK_SIZE = 30;
-
-const canvas = document.getElementById('board');
-const ctx = canvas.getContext('2d');
-
-canvas.width = COLS * BLOCK_SIZE;
-canvas.height = ROWS * BLOCK_SIZE;
-
-ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
-
-const piezas = [
-  { forma: [[0, 0], [1, 0], [1, 1], [0, 1]], color: 'yellow' },
-  { forma: [[0, 0], [1, 0], [2, 0], [3, 0]], color: 'cyan' },
-  { forma: [[0, 0], [1, 0], [2, 0], [2, 1]], color: 'orange' },
-  { forma: [[0, 1], [1, 1], [2, 1], [2, 0]], color: 'blue' },
-  { forma: [[1, 0], [2, 0], [0, 1], [1, 1]], color: 'red' },
-  { forma: [[0, 0], [1, 0], [1, 1], [2, 1]], color: 'green' },
-  { forma: [[1, 0], [0, 1], [1, 1], [2, 1]], color: 'purple' }
-];
-
-// Música pa' que el vecino te odie, colega
 const musica = new Audio('tetrjs.mp3');
 musica.loop = true;
 musica.volume = 0.4;
@@ -45,29 +21,10 @@ function crearPiezaAleatoria() {
   return { forma: pieza.forma, color: pieza.color, x: 3, y: 0 };
 }
 
-function crearTablero() {
-  return Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
-}
-
-// Pinta la pieza, obvio, genio
-function dibujarPieza(pieza) {
-  ctx.fillStyle = pieza.color;
-  pieza.forma.forEach(punto => ctx.fillRect(pieza.x + punto[0], pieza.y + punto[1], 1, 1));
-}
-
-function dibujarTablero() {
-  tablero.forEach((fila, y) => fila.forEach((valor, x) => {
-    if (valor !== 0) {
-      ctx.fillStyle = valor;
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }));
-}
-
 function moverPiezaAbajo() {
   if (!juegoActivo) return;
-  if (colisionAbajo()) {
-    fijarPieza();
+  if (colisionAbajo(piezaActual, tablero)) {
+    fijarPieza(piezaActual, tablero);
     if (verificarGameOver()) return finJuego();
     eliminarLineasCompletas();
     piezaActual = crearPiezaAleatoria();
@@ -75,7 +32,7 @@ function moverPiezaAbajo() {
     piezaActual.y++;
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  dibujarTablero();
+  dibujarTablero(tablero);
   dibujarPieza(piezaActual);
   actualizarHUD();
 }
@@ -83,71 +40,29 @@ function moverPiezaAbajo() {
 function moverIzquierda() {
   if (!juegoActivo) return;
   piezaActual.x--;
-  if (colisionHorizontal()) piezaActual.x++;
+  if (colisionHorizontal(piezaActual, tablero)) piezaActual.x++;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  dibujarTablero();
+  dibujarTablero(tablero);
   dibujarPieza(piezaActual);
 }
 
 function moverDerecha() {
   if (!juegoActivo) return;
   piezaActual.x++;
-  if (colisionHorizontal()) piezaActual.x--;
+  if (colisionHorizontal(piezaActual, tablero)) piezaActual.x--;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  dibujarTablero();
+  dibujarTablero(tablero);
   dibujarPieza(piezaActual);
 }
 
-// Gira, colega, como tu vida en una rave
 function rotarPieza() {
   if (!juegoActivo) return;
   const formaOriginal = [...piezaActual.forma];
   const formaRotada = formaOriginal.map(([x, y]) => [-y, x]);
-  if (esRotacionValida(formaRotada)) piezaActual.forma = formaRotada;
+  if (esRotacionValida(formaRotada, piezaActual, tablero)) piezaActual.forma = formaRotada;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  dibujarTablero();
+  dibujarTablero(tablero);
   dibujarPieza(piezaActual);
-}
-
-function colisionAbajo() {
-  const forma = piezaActual.forma;
-  const x = piezaActual.x;
-  const y = piezaActual.y;
-  for (let i = 0; i < forma.length; i++) {
-    const px = x + forma[i][0];
-    const py = y + forma[i][1] + 1;
-    if (py >= ROWS || (tablero[py] && tablero[py][px] !== 0)) return true;
-  }
-  return false;
-}
-
-function colisionHorizontal() {
-  const forma = piezaActual.forma;
-  const x = piezaActual.x;
-  const y = piezaActual.y;
-  for (let i = 0; i < forma.length; i++) {
-    const px = x + forma[i][0];
-    const py = y + forma[i][1];
-    if (px < 0 || px >= COLS || (tablero[py] && tablero[py][px] !== 0)) return true;
-  }
-  return false;
-}
-
-function fijarPieza() {
-  piezaActual.forma.forEach(punto => {
-    tablero[piezaActual.y + punto[1]][piezaActual.x + punto[0]] = piezaActual.color;
-  });
-}
-
-function esRotacionValida(formaRotada) {
-  const x = piezaActual.x;
-  const y = piezaActual.y;
-  for (let i = 0; i < formaRotada.length; i++) {
-    const px = x + formaRotada[i][0];
-    const py = y + formaRotada[i][1];
-    if (px < 0 || px >= COLS || py < 0 || py >= ROWS || (tablero[py] && tablero[py][px] !== 0)) return false;
-  }
-  return true;
 }
 
 function eliminarLineasCompletas() {
@@ -159,7 +74,7 @@ function eliminarLineasCompletas() {
       lineas++;
       lineasEliminadas++;
       y++;
-      linea.play(); // ¡PUM! Línea fuera, crack
+      linea.play();
     }
   }
   if (lineasEliminadas > 0) {
@@ -168,7 +83,6 @@ function eliminarLineasCompletas() {
   }
 }
 
-// Nivel sube, obvio, a sudar
 function actualizarNivel() {
   const nuevoNivel = Math.floor(lineas / 3) + 1;
   if (nuevoNivel !== nivel) {
@@ -197,7 +111,6 @@ function actualizarHUD() {
   document.getElementById('level').innerText = nivel;
 }
 
-// ¡A jugar, vago!
 function play() {
   if (juegoActivo) return;
   juegoActivo = true;
@@ -208,7 +121,7 @@ function play() {
   puntaje = 0;
   const velocidadInicial = 750;
   intervalo = setInterval(moverPiezaAbajo, velocidadInicial);
-  musica.play(); // ¡Fiesta ON, colega!
+  musica.play();
   actualizarHUD();
 }
 
