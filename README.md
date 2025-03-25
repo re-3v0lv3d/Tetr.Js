@@ -1,7 +1,8 @@
 # TETRJS
 
 
-![Captura de pantalla 2025-03-25 180320](https://github.com/user-attachments/assets/d2ac5a39-0116-4d9a-aea5-96a517bad49e)
+![Captura de pantalla 2025-03-25 225445](https://github.com/user-attachments/assets/378b0d2d-bcd4-4376-8bb0-d525d5d5d24e)
+
 
 
 https://re-3v0lv3d.github.io/TetrJs/
