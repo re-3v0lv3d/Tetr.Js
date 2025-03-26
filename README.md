@@ -5,7 +5,7 @@
 
 
 
-https://re-3v0lv3d.github.io/TetrJs/
+[https://re-3v0lv3d.github.io/TetrJs/](https://re-3v0lv3d.github.io/Tetr.Js/)
 
 
 TETRJS es un juego de Tetris implementado en JavaScript puro. Las piezas caen, puedes rotarlas y moverlas para completar líneas, que se eliminan con un sonido característico. Incluye música de fondo para una experiencia inmersiva. El nivel sube cada 3 líneas completadas, aumentando la velocidad, y el juego termina si las piezas llegan a la parte superior. ¡Juega y apunta al mayor puntaje posible!
