@@ -1,4 +1,4 @@
-# TETRJS
+# TETR.JS
 
 
 ![Captura de pantalla 2025-03-25 225445](https://github.com/user-attachments/assets/378b0d2d-bcd4-4376-8bb0-d525d5d5d24e)
